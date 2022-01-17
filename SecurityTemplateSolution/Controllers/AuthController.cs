@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SecurityTemplateSolution.Models;
+using SecurityTemplateSolution.Services;
 
 namespace SecurityTemplateSolution.Controllers
 {
@@ -13,13 +14,17 @@ namespace SecurityTemplateSolution.Controllers
             _context = context;
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         public IActionResult Register([FromBody]AuthRequest request)
         {
             var user = new User
             {
                 Login = request.Login
             };
+
+            AuthService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
 
             _context.Add(user);
             _context.SaveChanges();
