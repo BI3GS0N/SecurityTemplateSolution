@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SecurityTemplateSolution.Models;
 using SecurityTemplateSolution.Services;
+using System.Linq;
 
 namespace SecurityTemplateSolution.Controllers
 {
+    [Authorize]
     [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -14,6 +17,7 @@ namespace SecurityTemplateSolution.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public IActionResult Register([FromBody]AuthRequest request)
         {
@@ -29,6 +33,13 @@ namespace SecurityTemplateSolution.Controllers
             _context.Add(user);
             _context.SaveChanges();
             return Ok(new { user.Id, user.Login });
+        }
+
+        [HttpGet("users")]
+        public IActionResult GetUsers()
+        {
+            var users =  _context.Users.Select(u => new {u.Id, u.Login }).ToList();
+            return Ok(users);
         }
        
     }
